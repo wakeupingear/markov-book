@@ -1,9 +1,7 @@
 import java.io.IOException;
-import java.util.File;
+import java.util.HashMap;
 import java.util.Scanner;
-
 import java.util.ArrayList;
-import java.util.Map;
 
 public class Continuation {
     int order;
@@ -22,14 +20,14 @@ public class Continuation {
         input.close();
 
         //Read through characters
-        Map<String, ArrayList<Char>> letterOdds = new Map<String, ArrayList<Char>>();
+        HashMap<String, ArrayList<Character>> letterOdds = new HashMap<String, ArrayList<Character>>();
         for (int i=order;i<bookText.length();i++)
         {
             String key=(bookText.substring(i-order-1, i));
-            Char nextLetter=bookText.charAt(i);
+            Character nextLetter=bookText.charAt(i);
             if (!letterOdds.containsKey(key))
             {
-                letterOdds.put(key,new ArrayList<Char>());
+                letterOdds.put(key,new ArrayList<Character>());
             }
             letterOdds.get(key).add(nextLetter);
         }
@@ -40,5 +38,9 @@ public class Continuation {
         {
             newText.append(NewLetter(newText.substring(i-order-1, i)));
         }
+    }
+    
+    public String NewLetter(String input) {
+    	return input;
     }
 }
