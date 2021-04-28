@@ -1,40 +1,71 @@
 import java.util.HashMap;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 
 public class Continuation {
-    int order;
+    public int order;
+    public String[] alphabet = {"a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"};
+    public HashMap<String, ArrayList<Character>> letterOdds;
 
-    public Continuation(String inputText, int bookLength) {
-        this(5, inputText, bookLength);
+    public Continuation(String filename, int bookLength) throws IOException {
+        this(5, filename, bookLength);
     }
 
-    public Continuation(int newOrder, String filename, int bookLength) {
+    public Continuation(int newOrder, String filename, int bookLength) throws IOException {
         order = newOrder;
         BufferedReader reader= new BufferedReader(new FileReader(new File(filename)));
 
         //Read through characters
-        HashMap<String, ArrayList<Character>> letterOdds = new HashMap<String, ArrayList<Character>>();
+        letterOdds = new HashMap<String, ArrayList<Character>>();
+        
+        long startTime=System.currentTimeMillis();
+        String bookStart="";
+        for (int i=0;i<order&&reader.ready();i++) bookStart+=(char)reader.read();
+        StringBuilder lastStr=new StringBuilder(bookStart);
+        
         while (reader.ready()) {
         	char t = (char) reader.read();
+        	AddLetter(lastStr.toString(),t);
+        	lastStr.deleteCharAt(0);
+        	lastStr.append(t);
         }
         reader.close();
+        System.out.println("Process time: "+(System.currentTimeMillis()-startTime));
 
         //Generate new book
-        StringBuilder newText = new StringBuilder(bookText.substring(0, order));
-        for (int i=order;i<bookLength;i++)
-        {
-            newText.append(NewLetter(newText.substring(i-order-1, i)));
+        startTime=System.currentTimeMillis();
+        StringBuilder newText = new StringBuilder(bookStart);
+        for (int i=order;i<bookLength;i++) {
+            newText.append(NewLetter(newText.substring(i-order, i)));
         }
         PrintWriter writer = new PrintWriter("output.txt");
         writer.print(newText.toString());
         writer.close();
+        System.out.println("Write time: "+(System.currentTimeMillis()-startTime));
+    }
+    
+    public void AddLetter(String key, char t) {
+    	if (!letterOdds.containsKey(key)) {
+    		letterOdds.put(key, new ArrayList<Character>());
+    	}
+    	letterOdds.get(key).add(t);
     }
     
     public String NewLetter(String input) {
-    	return input;
+    	if (!letterOdds.containsKey(input)) {
+        	double pos=Math.random()*26;
+    		return alphabet[(int)pos];
+    		//for (int i=0;i<26;i++) {
+    		//	AddLetter(input,(char)('a'+i));
+    		//}
+    	}
+    	ArrayList list=letterOdds.get(input);
+    	double pos=Math.random()*list.size();
+    	return list.get((int)pos).toString();
     }
 }
